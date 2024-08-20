@@ -1,6 +1,5 @@
 ARG CUDA_VERSION=11.8.0
 ARG OS_VERSION=22.04
-ARG USER_ID=1000
 
 # Define base image.
 FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu${OS_VERSION}
@@ -55,81 +54,11 @@ RUN apt-get update && \
     qtbase5-dev \
     sudo \
     vim-tiny \
-    wget && \
-    rm -rf /var/lib/apt/lists/*
-
-# Install GLOG (required by ceres).
-RUN git clone --branch v0.6.0 https://github.com/google/glog.git --single-branch && \
-    cd glog && \
-    mkdir build && \
-    cd build && \
-    cmake .. && \
-    make -j "$(nproc)" && \
-    make install && \
-    cd ../.. && \
-    rm -rf glog
-
-ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/lib"
-
-# Install Ceres-solver (required by colmap).
-RUN git clone --branch 2.1.0 https://ceres-solver.googlesource.com/ceres-solver.git --single-branch && \
-    cd ceres-solver && \
-    git checkout "$(git describe --tags)" && \
-    mkdir build && \
-    cd build && \
-    cmake .. -DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF && \
-    make -j "$(nproc)" && \
-    make install && \
-    cd ../.. && \
-    rm -rf ceres-solver
-
-# Install colmap.
-RUN git clone --branch 3.8 https://github.com/colmap/colmap.git --single-branch && \
-    cd colmap && \
-    mkdir build && \
-    cd build && \
-    cmake .. -DCUDA_ENABLED=ON \
-             -DCMAKE_CUDA_ARCHITECTURES=${CUDA_ARCHITECTURES} && \
-    make -j "$(nproc)" && \
-    make install && \
-    cd ../.. && \
-    rm -rf colmap
-
-# Create non-root user and set up environment.
-RUN useradd -m -d /home/user -g root -G sudo -u ${USER_ID} user
-RUN usermod -aG sudo user
-RUN echo "user:user" | chpasswd
-RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
-
-USER ${USER_ID}
-WORKDIR /home/user
-
-ENV PATH="${PATH}:/home/user/.local/bin"
-SHELL ["/bin/bash", "-c"]
+    wget 
+    
 
 RUN python3 -m pip install --upgrade pip setuptools pathtools promise pybind11 opencv-python
-USER root
-RUN CUDA_VER=${CUDA_VERSION%.*} && CUDA_VER=${CUDA_VER//./} && python3 -m pip install \
-    torch==2.0.0+cu${CUDA_VER} \
-    torchvision==0.15.0+cu${CUDA_VER} \
-        --extra-index-url https://download.pytorch.org/whl/cu${CUDA_VER}
-USER ${USER_ID}
 
-RUN git clone --branch v0.4.0 --recursive https://github.com/colmap/pycolmap.git && \
-    cd pycolmap && \
-    python3 -m pip install . && \
-    cd ..
-
-RUN git clone --branch master --recursive https://github.com/cvg/Hierarchical-Localization.git && \
-    cd Hierarchical-Localization && \
-    python3 -m pip install -e . && \
-    cd ..
-
-RUN python3 -m pip install omegaconf
-
-USER root
-RUN chsh -s /bin/bash user
-USER ${USER_ID}
 
 
 
