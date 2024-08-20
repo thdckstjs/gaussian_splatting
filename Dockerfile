@@ -1,5 +1,5 @@
 # Chosen to match the CUDA 11.7 installed on this machine
-FROM nvidia/cuda:11.7.1-devel-ubuntu22.04
+FROM nvidia/cuda:11.6.1-cudnn8-devel-ubuntu22.04
 
 # Install dependencies
 ENV DEBIAN_FRONTEND noninteractive
