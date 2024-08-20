@@ -1,16 +1,5 @@
-ARG CUDA_VERSION=11.8.0
-ARG OS_VERSION=22.04
-
 # Define base image.
-FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu${OS_VERSION}
-ARG CUDA_VERSION
-ARG OS_VERSION
-ARG USER_ID
-
-# metainformation
-LABEL org.opencontainers.image.version="0.1.18"
-LABEL org.opencontainers.image.licenses="Apache License 2.0"
-LABEL org.opencontainers.image.base.name="docker.io/library/nvidia/cuda:${CUDA_VERSION}-devel-ubuntu${OS_VERSION}"
+FROM nvcr.io/nvidia/pytorch:23.10-py3
 
 ARG CUDA_ARCHITECTURES=70
 
