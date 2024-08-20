@@ -1,5 +1,5 @@
 # Chosen to match the CUDA 11.7 installed on this machine
-FROM nvidia/cuda:11.7.1-devel-ubuntu22.04
+FROM nvcr.io/nvidia/pytorch:23.10-py3
 
 # Install dependencies
 ENV DEBIAN_FRONTEND noninteractive
@@ -23,5 +23,8 @@ WORKDIR /gaussian-splatting-build/SIBR_viewers
 RUN cmake -Bbuild . -DCMAKE_BUILD_TYPE=Release
 RUN cmake --build build -j24 --target install
 ENV PATH=/gaussian-splatting-build/SIBR_viewers/install/bin:$PATH
+
+RUN pip install tqdm lmdb tensorboardx scipy scikit-learn matplotlib pandas scikit-image timm nano open3d
+RUN pip install opencv-python==4.8.0.74
 
 
